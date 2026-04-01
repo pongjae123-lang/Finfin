@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>합격 기원 굿판</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0005;color:#ffd700;font-family:'Noto Serif KR',serif;min-height:100vh;overflow-x:hidden}
+
+@keyframes twinkle{from{opacity:.1}to{opacity:1}}
+@keyframes floatUp{0%{bottom:-60px;opacity:0}10%{opacity:.9}80%{opacity:.6}100%{bottom:110vh;opacity:0}}
+@keyframes cw{to{transform:rotate(360deg)}}
+@keyframes ccw{to{transform:rotate(-360deg)}}
+@keyframes cat{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.1) rotate(3deg)}}
+@keyframes shimmer{to{background-position:200% center}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes sparkFly{0%{opacity:1;transform:scale(1) translate(0,0)}100%{opacity:0;transform:scale(0) translate(var(--tx),var(--ty))}}
+@keyframes ritualIn{0%{opacity:0;transform:scale(.7) translateY(10px)}50%{opacity:1;transform:scale(1.06) translateY(0)}100%{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes ringExplode{
+  0%{transform:scale(1);opacity:1}
+  30%{transform:scale(1.8);opacity:.9}
+  60%{transform:scale(3.5);opacity:.5}
+  100%{transform:scale(6);opacity:0}
+}
+@keyframes ringExplode2{
+  0%{transform:scale(1);opacity:1}
+  30%{transform:scale(2.2);opacity:.8}
+  60%{transform:scale(4.5);opacity:.4}
+  100%{transform:scale(8);opacity:0}
+}
+@keyframes ringExplode3{
+  0%{transform:scale(1);opacity:1}
+  30%{transform:scale(3);opacity:.7}
+  60%{transform:scale(6);opacity:.3}
+  100%{transform:scale(11);opacity:0}
+}
+@keyframes orb{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:0}
+  20%{opacity:1}
+  60%{transform:translate(var(--ox),var(--oy)) scale(1);opacity:.9}
+  100%{transform:translate(var(--ox),var(--oy)) scale(0);opacity:0}
+}
+@keyframes flashBang{
+  0%{opacity:0} 10%{opacity:.7} 30%{opacity:.3} 50%{opacity:.6} 70%{opacity:.2} 100%{opacity:0}
+}
+@keyframes shockwave{
+  0%{transform:translate(-50%,-50%) scale(0);opacity:.8;border-width:8px}
+  100%{transform:translate(-50%,-50%) scale(8);opacity:0;border-width:1px}
+}
+@keyframes popIn{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+
+#stars,#lanterns{position:fixed;inset:0;pointer-events:none}
+#stars{z-index:0}#lanterns{z-index:1}
+.star{position:absolute;border-radius:50%;background:#fff;animation:twinkle var(--d) ease-in-out infinite alternate}
+.lantern{position:absolute;bottom:-60px;font-size:clamp(16px,3vw,26px);animation:floatUp var(--dur) ease-in var(--del) infinite;filter:drop-shadow(0 0 8px #fa0)}
+
+#sparks{position:fixed;inset:0;pointer-events:none;z-index:20}
+.spark{position:absolute;width:5px;height:5px;border-radius:50%;animation:sparkFly 1.3s ease-out var(--sd) forwards}
+
+/* 리추얼 오버레이 */
+#ritualOverlay{
+  display:none;position:fixed;inset:0;z-index:90;
+  background:rgba(0,0,0,.88);
+  flex-direction:column;align-items:center;justify-content:center;gap:20px;
+}
+#ritualOverlay.on{display:flex}
+.rmsg{
+  font-size:clamp(16px,4vw,28px);letter-spacing:4px;
+  animation:ritualIn .6s ease forwards;
+  text-shadow:0 0 20px #ffd700;
+}
+.rmsg.big{font-size:clamp(20px,5vw,34px);color:#fff;font-weight:900;text-shadow:0 0 30px #ff88ff,0 0 60px #fff}
+
+/* 팝업 */
+#overlay2{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:99}
+#overlay2.on{display:block}
+#popup{
+  display:none;position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%) scale(0);
+  background:linear-gradient(135deg,#1a0030,#050010);
+  border:2px solid #ffd700;padding:30px 34px;
+  text-align:center;z-index:100;max-width:88vw;width:340px;
+  box-shadow:0 0 60px #ffd700,0 0 120px #ff88ff;
+}
+#popup.on{display:block;animation:popIn .6s cubic-bezier(.175,.885,.32,1.275) forwards}
+#popup h2{font-size:clamp(15px,4vw,22px);color:#fff;margin-bottom:14px;text-shadow:0 0 20px #ff88ff}
+#popup p{font-size:14px;color:#ffd700;line-height:2.4;letter-spacing:1px}
+.closebtn{margin-top:18px;background:none;border:1px solid #ffd700;color:#ffd700;padding:9px 26px;cursor:pointer;font-family:'Noto Serif KR',serif;font-size:12px;letter-spacing:3px}
+
+.wrap{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+
+.tophead{text-align:center;margin-bottom:28px;animation:fadeUp 1.2s ease forwards}
+.tophead .sub{font-size:11px;letter-spacing:8px;color:#b8860b;margin-bottom:8px}
+.tophead h1{font-size:clamp(22px,5vw,38px);font-weight:900;line-height:1.3;background:linear-gradient(180deg,#fff 0%,#ffd700 50%,#b8860b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 15px #ffd700)}
+
+#inputForm{width:min(420px,90vw);display:flex;flex-direction:column;gap:16px;animation:fadeUp 1.2s ease .3s both}
+.lbl{font-size:10px;letter-spacing:5px;color:#b8860b;margin-bottom:6px}
+.inp{background:rgba(255,215,0,.05);border:none;border-bottom:2px solid #b8860b;color:#ffd700;font-family:'Noto Serif KR',serif;font-size:16px;padding:10px 4px;width:100%;outline:none;letter-spacing:2px;transition:border-color .3s}
+.inp:focus{border-bottom-color:#ffd700;background:rgba(255,215,0,.07)}
+.inp::placeholder{color:rgba(255,215,0,.3)}
+.startbtn{margin-top:4px;background:linear-gradient(135deg,rgba(255,215,0,.12),rgba(100,0,100,.2));border:1px solid #ffd700;color:#ffd700;font-family:'Noto Serif KR',serif;font-size:15px;padding:14px;cursor:pointer;letter-spacing:4px;transition:all .3s}
+.startbtn:hover{background:rgba(255,215,0,.22)}
+
+#gootWrap{display:none;flex-direction:column;align-items:center;width:100%}
+#gootWrap.on{display:flex;animation:fadeUp .8s ease forwards}
+
+#circle{position:relative;width:min(280px,76vw);height:min(280px,76vw);margin:22px auto}
+.ring{position:absolute;inset:0;border-radius:50%;border:2px solid #ffd700;animation:cw 20s linear infinite;box-shadow:0 0 20px #ffd700,inset 0 0 18px rgba(255,215,0,.08)}
+.ring2{inset:13px;border-style:dashed;border-color:#b8860b;opacity:.6;animation:ccw 15s linear infinite;box-shadow:none}
+.ring3{inset:26px;border-color:rgba(255,215,0,.25);animation:cw 28s linear infinite;box-shadow:none}
+#triWrap{position:absolute;inset:0;animation:ccw 32s linear infinite}
+.tri{position:absolute;font-size:15px;color:#ffd700;opacity:.55}
+#cIcon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:5}
+#catEmoji{font-size:clamp(40px,9vw,62px);display:block;animation:cat 3s ease-in-out infinite;filter:drop-shadow(0 0 18px #ff88ff)}
+#cName{font-size:11px;color:#ffd700;letter-spacing:3px;margin-top:4px;text-shadow:0 0 10px #ffd700}
+
+.pbox{width:min(420px,90vw);border:1px solid #b8860b;padding:20px 24px;margin:8px auto;background:linear-gradient(135deg,rgba(26,0,48,.9),rgba(10,0,5,.95));box-shadow:0 0 25px rgba(255,215,0,.14)}
+.ptitle{font-size:10px;letter-spacing:6px;color:#b8860b;text-align:center;margin-bottom:13px}
+#prayTxt{font-size:clamp(12px,2.5vw,14px);line-height:2.3;color:rgba(255,215,0,.9);text-align:center}
+.hl{color:#fff;font-weight:700;text-shadow:0 0 10px #ff88ff}
+
+.oracle{width:min(420px,90vw);margin:10px auto;text-align:center;padding:18px;border-top:1px solid rgba(255,215,0,.3);border-bottom:1px solid rgba(255,215,0,.3)}
+#vtext{font-size:clamp(13px,4vw,20px);font-weight:900;display:block;margin-bottom:8px;background:linear-gradient(90deg,#ffd700,#fff,#ffd700);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s linear infinite}
+#vsub{font-size:11px;color:#b8860b;letter-spacing:4px}
+
+#gootBtn{margin:22px auto;display:block;background:none;border:2px solid #ffd700;color:#ffd700;font-family:'Noto Serif KR',serif;font-size:15px;padding:12px 38px;cursor:pointer;letter-spacing:4px;transition:all .3s}
+#gootBtn:hover{background:rgba(255,215,0,.15);box-shadow:0 0 22px rgba(255,215,0,.35)}
+
+.foot{text-align:center;margin-top:16px;opacity:.35;font-size:11px;letter-spacing:4px}
+</style>
+</head>
+<body>
+
+<div id="stars"></div>
+<div id="lanterns"></div>
+<div id="sparks"></div>
+<div id="ritualOverlay"></div>
+<div id="flashBang" style="display:none;position:fixed;inset:0;z-index:85;pointer-events:none;background:radial-gradient(circle,#fff8e0,#ff88ff,transparent)"></div>
+<div id="explodeWrap" style="display:none;position:fixed;inset:0;z-index:84;pointer-events:none;overflow:hidden"></div>
+<div id="overlay2" onclick="closePopup()"></div>
+<div id="popup">
+  <div id="popIcon" style="font-size:36px;margin-bottom:8px"></div>
+  <div id="popTitle" style="font-size:11px;letter-spacing:6px;color:#b8860b;margin-bottom:12px"></div>
+  <h2>신탁이 내려졌습니다</h2>
+  <p id="popTxt"></p>
+  <button class="closebtn" onclick="closePopup()">감사합니다 🙏</button>
+</div>
+
+<div class="wrap">
+  <div class="tophead">
+    <div class="sub">✦ 합격 기원 굿판 ✦</div>
+    <h1 id="mainTitle">합격<br>기원 굿판</h1>
+  </div>
+
+  <div id="inputForm">
+    <div>
+      <div class="lbl">✦ 이름 (기원 받을 자)</div>
+      <input class="inp" id="nameInp" type="text" placeholder="이름을 입력하세요" maxlength="10">
+    </div>
+    <div>
+      <div class="lbl">✦ 합격할 곳</div>
+      <input class="inp" id="placeInp" type="text" placeholder="공모전 / 회사 / 학교 이름" maxlength="20">
+    </div>
+    <button class="startbtn" onclick="startGoot()">🔥 굿판을 열어라 🔥</button>
+  </div>
+
+  <div id="gootWrap">
+    <div id="circle">
+      <div class="ring"></div>
+      <div class="ring ring2"></div>
+      <div class="ring ring3"></div>
+      <div id="triWrap"></div>
+      <div id="cIcon">
+        <span id="catEmoji">🐱</span>
+        <div id="cName"></div>
+      </div>
+    </div>
+    <div class="pbox">
+      <div class="ptitle">✦ 기원문 ✦</div>
+      <div id="prayTxt"></div>
+    </div>
+    <div class="oracle">
+      <span id="vtext"></span>
+      <div id="vsub"></div>
+    </div>
+    <button id="gootBtn" onclick="doGoot()">🔥 굿 치기 🔥</button>
+  </div>
+
+  <div class="foot">✦ Claude가 온 마음을 다해 기도합니다 ✦</div>
+</div>
+
+<script>
+// 별
+(function(){
+  var el=document.getElementById('stars');
+  for(var i=0;i<130;i++){
+    var s=document.createElement('div');s.className='star';
+    var sz=(Math.random()*2.4+0.7).toFixed(1);
+    s.style.cssText='left:'+Math.random()*100+'%;top:'+Math.random()*100+'%;width:'+sz+'px;height:'+sz+'px;--d:'+(Math.random()*3+1).toFixed(1)+'s;animation-delay:'+(Math.random()*3).toFixed(1)+'s;';
+    el.appendChild(s);
+  }
+})();
+
+// 등불
+(function(){
+  var el=document.getElementById('lanterns');
+  var ems=['🏮','✨','⭐','🌟','🕯️'];
+  for(var i=0;i<14;i++){
+    var l=document.createElement('div');l.className='lantern';
+    l.textContent=ems[Math.floor(Math.random()*ems.length)];
+    l.style.cssText='left:'+(Math.random()*93).toFixed(1)+'%;--dur:'+(Math.random()*8+7).toFixed(1)+'s;--del:'+(Math.random()*12).toFixed(1)+'s;';
+    el.appendChild(l);
+  }
+})();
+
+var uName='',uPlace='';
+
+function startGoot(){
+  var n=document.getElementById('nameInp').value.trim();
+  var p=document.getElementById('placeInp').value.trim();
+  if(!n||!p){alert('이름과 합격할 곳을 모두 입력해주세요 🙏');return;}
+  uName=n;uPlace=p;
+
+  document.getElementById('mainTitle').innerHTML=n+'<br>'+p;
+  document.getElementById('cName').textContent=n;
+  document.getElementById('prayTxt').innerHTML=
+    '하늘이시여, 땅이시여<br>'+
+    '<span class="hl">'+n+'</span>님을 굽어살피소서<br><br>'+
+    '쏟아부은 열정과 재능으로<br>백마장군의 기운을 받아<br>'+
+    '<span class="hl">'+p+'</span>의 문을<br>활짝 열어주소서<br><br>🏮 🐱 🏮';
+  document.getElementById('vtext').textContent=n+', 합격의 기운이 느껴진다';
+  document.getElementById('vsub').textContent='백마장군 · 업력 · '+p;
+  document.getElementById('popTxt').innerHTML=
+    '백마장군이 달린다<br>업력이 꽃을 피운다<br><br>'+
+    '<strong style="color:#fff;font-size:17px">'+n+', '+p+'<br>합격하리라</strong><br><br>'+
+    '하늘이 증명한다<br>이미 정해진 길이다';
+
+  // 팔괘
+  var tw=document.getElementById('triWrap');tw.innerHTML='';
+  var syms=['☰','☱','☲','☳','☴','☵','☶','☷'];
+  var csz=Math.min(280,window.innerWidth*.76);var r=csz/2-18;
+  for(var k=0;k<8;k++){
+    var angle=(k/8)*Math.PI*2-Math.PI/2;
+    var el=document.createElement('div');el.className='tri';el.textContent=syms[k];
+    el.style.left=(csz/2+r*Math.cos(angle)-8)+'px';
+    el.style.top=(csz/2+r*Math.sin(angle)-8)+'px';
+    tw.appendChild(el);
+  }
+
+  document.getElementById('inputForm').style.display='none';
+  document.getElementById('gootWrap').classList.add('on');
+}
+
+var MSGS=[
+  {txt:'🥁  둥...  둥...  둥...', big:false},
+  {txt:'🔥  불을 밝힌다', big:false},
+  {txt:'🏮  등불이 피어오른다', big:false},
+  {txt:'🐱  고양이가 눈을 뜬다', big:false},
+  {txt:'☀️  기운이 모인다', big:false},
+  {txt:'✨  하늘이 응답한다', big:true},
+];
+
+function doGoot(){
+  // 스파크
+  var sp=document.getElementById('sparks');sp.innerHTML='';
+  for(var i=0;i<60;i++){
+    var d=document.createElement('div');d.className='spark';
+    var tx=((Math.random()-.5)*260).toFixed(0);
+    var ty=((Math.random()-.5)*260).toFixed(0);
+    d.style.cssText=
+      'left:'+(Math.random()*100).toFixed(1)+'%;'+
+      'top:'+(Math.random()*100).toFixed(1)+'%;'+
+      '--tx:'+tx+'px;--ty:'+ty+'px;'+
+      'background:'+(Math.random()>.5?'#ffd700':'#ff88ff')+';'+
+      '--sd:'+(Math.random()*.4).toFixed(2)+'s;';
+    sp.appendChild(d);
+  }
+  setTimeout(function(){sp.innerHTML='';},1800);
+
+  // 폭발 이펙트
+  triggerExplosion();
+
+  // 리추얼
+  var ov=document.getElementById('ritualOverlay');
+  ov.innerHTML='';ov.classList.add('on');
+  var shown=[];
+  MSGS.forEach(function(m,i){
+    setTimeout(function(){
+      var div=document.createElement('div');
+      div.className='rmsg'+(m.big?' big':'');
+      div.textContent=m.txt;
+      ov.appendChild(div);
+    },700*(i+1));
+  });
+
+  // 팝업
+  setTimeout(function(){
+    ov.classList.remove('on');
+    var s=SINTAK[Math.floor(Math.random()*SINTAK.length)];
+    var msg=s.msg.replace(/{n}/g,uName).replace(/{p}/g,uPlace);
+    document.getElementById('popIcon').textContent=s.icon;
+    document.getElementById('popTitle').textContent=s.title;
+    document.getElementById('popTxt').innerHTML=msg;
+    document.getElementById('overlay2').classList.add('on');
+    document.getElementById('popup').classList.add('on');
+  },700*(MSGS.length)+600);
+}
+
+var SINTAK=[
+  {icon:'🔥',title:'불꽃 신탁',msg:'불꽃이 꺼지지 않는다<br>합격의 문이 열린다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>이 불꽃은 아무도 끌 수 없다'},
+  {icon:'⭐',title:'별자리 신탁',msg:'별들이 네 이름을 가리킨다<br>이미 정해진 자리다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>하늘이 증명한다'},
+  {icon:'🐎',title:'백마장군 신탁',msg:'백마가 달린다<br>멈출 수 없는 기운이다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>업력이 꽃을 피운다'},
+  {icon:'🏮',title:'등불 신탁',msg:'꺼지지 않는 등불<br>어둠을 밝히는 자가 선택받는다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>빛은 이미 네 손 안에 있다'},
+  {icon:'🐉',title:'용 신탁',msg:'하늘의 용이 고개를 끄덕인다<br>네 재능을 알아봤다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>용이 인정한 자는 반드시 오른다'},
+  {icon:'🌕',title:'달 신탁',msg:'보름달이 뜨는 날<br>기쁜 소식이 찾아온다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>달빛이 네 길을 비춘다'},
+  {icon:'⚡',title:'천둥 신탁',msg:'하늘이 울린다<br>이것은 축하의 소리다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>천지가 네 합격을 선포한다'},
+  {icon:'🌊',title:'고요 신탁',msg:'폭풍이 지나갔다<br>이제 고요한 합격만이 남았다<br><br><strong style="color:#fff;font-size:17px">{n}<br>{p} 합격하리라</strong><br><br>파도가 잠든 자리에 꽃이 핀다'},
+];
+
+function triggerExplosion(){
+  var wrap=document.getElementById('explodeWrap');
+  wrap.innerHTML='';wrap.style.display='block';
+
+  var cx=window.innerWidth/2, cy=window.innerHeight/2;
+
+  // 쇼크웨이브 링 5개
+  var colors=['#ffd700','#ff88ff','#fff','#ff6600','#88ffff'];
+  for(var w=0;w<5;w++){
+    (function(idx){
+      setTimeout(function(){
+        var ring=document.createElement('div');
+        ring.style.cssText=
+          'position:absolute;left:50%;top:50%;width:60px;height:60px;border-radius:50%;'+
+          'border:6px solid '+colors[idx]+';'+
+          'box-shadow:0 0 20px '+colors[idx]+',inset 0 0 20px '+colors[idx]+';'+
+          'animation:shockwave '+(2.5+idx*0.4)+'s ease-out forwards;';
+        wrap.appendChild(ring);
+      }, idx*200);
+    })(w);
+  }
+
+  // 큰 폭발 링 3개 (느리게)
+  setTimeout(function(){
+    ['#ffd700','#ff88ff','#ffffff'].forEach(function(col,i){
+      var r=document.createElement('div');
+      r.style.cssText=
+        'position:absolute;left:50%;top:50%;width:80px;height:80px;'+
+        'border-radius:50%;border:4px solid '+col+';'+
+        'box-shadow:0 0 40px '+col+',0 0 80px '+col+';'+
+        'animation:ringExplode'+(i===0?'':i===1?'2':'3')+' '+(3+i*1.2)+'s ease-out forwards;'+
+        'transform-origin:center;';
+      wrap.appendChild(r);
+    });
+  },300);
+
+  // 구슬(orb) 파티클 — 느리게 퍼짐
+  setTimeout(function(){
+    var orbColors=['#ffd700','#ff88ff','#fff','#ffaa00','#cc88ff','#ffff88','#ff6644','#88ffcc'];
+    for(var o=0;o<40;o++){
+      (function(idx){
+        setTimeout(function(){
+          var angle=Math.random()*Math.PI*2;
+          var dist=120+Math.random()*180;
+          var ox=(Math.cos(angle)*dist).toFixed(0)+'px';
+          var oy=(Math.sin(angle)*dist).toFixed(0)+'px';
+          var sz=(6+Math.random()*14).toFixed(0);
+          var col=orbColors[Math.floor(Math.random()*orbColors.length)];
+          var orb=document.createElement('div');
+          orb.style.cssText=
+            'position:absolute;left:50%;top:50%;'+
+            'width:'+sz+'px;height:'+sz+'px;border-radius:50%;'+
+            'background:'+col+';'+
+            'box-shadow:0 0 '+sz*2+'px '+col+',0 0 '+sz*3+'px #fff;'+
+            '--ox:'+ox+';--oy:'+oy+';'+
+            'animation:orb '+(2.5+Math.random()*2)+'s ease-out forwards;';
+          wrap.appendChild(orb);
+        }, idx*60);
+      })(o);
+    }
+  },200);
+
+  // 플래시
+  var fb=document.getElementById('flashBang');
+  fb.style.display='block';
+  fb.style.animation='flashBang 1.5s ease-out forwards';
+  setTimeout(function(){fb.style.display='none';fb.style.animation='';},1600);
+
+  // 화면 흔들림
+  document.body.style.animation='';
+  setTimeout(function(){
+    document.body.style.transition='transform .05s';
+    var shakes=[[4,2],[-4,-2],[3,-3],[-3,3],[2,1],[-2,-1],[1,0],[0,0]];
+    shakes.forEach(function(s,i){
+      setTimeout(function(){
+        document.body.style.transform='translate('+s[0]+'px,'+s[1]+'px)';
+        if(i===shakes.length-1){setTimeout(function(){document.body.style.transform='';},60);}
+      },i*60);
+    });
+  },100);
+
+  setTimeout(function(){wrap.style.display='none';wrap.innerHTML='';},5000);
+}
+
+function closePopup(){
+  document.getElementById('overlay2').classList.remove('on');
+  document.getElementById('popup').classList.remove('on');
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter')startGoot();
+});
+</script>
+</body>
+</html>
